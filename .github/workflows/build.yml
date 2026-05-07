@@ -18,12 +18,12 @@ on:
         type: string
         default: 'lineage-23.2'
       kernel_defconfig:
-        description: 'Defconfig (relative to kernel root)'
+        description: 'Defconfig (Start it with / if it is in the kernel root)'
         required: false
         type: string
         default: 'gki_defconfig'
       extra_configs:
-        description: 'Extra config fragments (space-separated, relative to kernel root)'
+        description: 'Extra config fragments (space-separated, Start it with / if it is in the kernel root)'
         required: false
         type: string
         default: 'vendor/waipio_GKI.config vendor/nothing/waipio_GKI.config vendor/debugfs.config'
@@ -128,9 +128,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential bc bison flex libelf-dev libssl-dev \
+            build-essential bc bison flex libelf-dev libssl-dev ccache \
             lz4 zip python3 clang llvm lld gcc-aarch64-linux-gnu \
             gcc-arm-linux-gnueabi wget
+
+      - name: Setup LLVM toolchain path (arter97 compat)
+        if: ${{ contains(inputs.kernel_repo || '', 'arter97/android_kernel_nothing_sm8475') }}
+        run: |
+          llvm_dir=/home/arter97/android/nathan/llvm-22.1.0-x86_64/bin
+          sudo mkdir -p "$llvm_dir"
+          for tool in clang clang++ llvm-ar llvm-nm llvm-objdump llvm-objcopy llvm-readelf llvm-strip ld.lld; do
+            src=$(command -v "$tool" || true)
+            if [ -n "$src" ]; then
+              sudo ln -sf "$src" "$llvm_dir/$tool"
+            fi
+          done
 
       - name: Clone sources
         run: |

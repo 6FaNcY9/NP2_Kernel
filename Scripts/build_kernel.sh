@@ -6,6 +6,7 @@ defconfig_target="${DEFCONFIG}"
 defconfig_path="${DEFCONFIG}"
 if [ -n "${DEFCONFIG}" ] && echo "${DEFCONFIG}" | grep -q '^/'; then
   defconfig_path="${DEFCONFIG#/}"
+  defconfig_target="$(basename "${defconfig_path}")"
 fi
 
 if [ -n "${defconfig_path}" ] && echo "${defconfig_path}" | grep -q '/'; then
