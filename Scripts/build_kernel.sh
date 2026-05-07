@@ -5,24 +5,26 @@ cd "${KERNEL_DIR}"
 
 make ${MAKE_ARGS} "${DEFCONFIG}" ${DEFCONFIG_FRAGS}
 
-KCFG="./scripts/config --file out/.config"
-"${KCFG}" -e KSU
+EXTRA_CFG="out/ci-extra.config"
+: > "${EXTRA_CFG}"
+echo "CONFIG_KSU=y" >> "${EXTRA_CFG}"
 
 if [ "${SUSFS_SUPPORT}" = "true" ]; then
-  "${KCFG}" -e KSU_SUSFS
+  echo "CONFIG_KSU_SUSFS=y" >> "${EXTRA_CFG}"
 fi
 
 if [ "${KPM_SUPPORT}" = "true" ]; then
-  "${KCFG}" -e KPM
-  "${KCFG}" -e KALLSYMS
-  "${KCFG}" -e KALLSYMS_ALL
-  "${KCFG}" -e KPROBES
+  echo "CONFIG_KPM=y" >> "${EXTRA_CFG}"
+  echo "CONFIG_KALLSYMS=y" >> "${EXTRA_CFG}"
+  echo "CONFIG_KALLSYMS_ALL=y" >> "${EXTRA_CFG}"
+  echo "CONFIG_KPROBES=y" >> "${EXTRA_CFG}"
 fi
 
 if [ "${BBG_SUPPORT}" = "true" ]; then
-  "${KCFG}" -e BBG
+  echo "CONFIG_BBG=y" >> "${EXTRA_CFG}"
 fi
 
+cat "${EXTRA_CFG}" >> out/.config
 make ${MAKE_ARGS} olddefconfig
 [ -f scripts/setlocalversion ] && sed -i 's/-dirty//g' scripts/setlocalversion || true
 
