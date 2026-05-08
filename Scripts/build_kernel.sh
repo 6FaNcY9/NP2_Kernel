@@ -34,6 +34,8 @@ if [ -n "${DEFCONFIG_FRAGS:-}" ]; then
   for frag in ${DEFCONFIG_FRAGS}; do
     if [ -f "${frag}" ]; then
       frags+=("${frag}")
+    elif [ -f "arch/arm64/configs/${frag}" ]; then
+      frags+=("arch/arm64/configs/${frag}")
     else
       echo "Skipping missing defconfig fragment: ${frag}"
     fi
